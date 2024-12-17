@@ -29,9 +29,7 @@ INSERT INTO valores_esperados VALUES
 ('region',                       4,'ea36373529f9c3cc64e021c3e806a226'),
 ('detalles pedido',           2155,'a2bfd89c6e0dc43e269553876f1a2e99'),
 ('empleados',                    9,'d57e46ced0bb0560b109431f8aaffcbf'),
-('clientedemografia',            0,''),
 ('pedidos',                    830,'9074dc7fc43b45f19235aa986415f972'),
-('clienteclientedemo',           0,''),
 ('clientes',                    91,'542b1771a6f2f3d43200ebc43d2b9b08'),
 ('transportistas',               3,'684d81cf94d3977cd7dd8254b417c4da');
 
@@ -78,19 +76,9 @@ SET @crc = '';
 INSERT INTO valores_encontrados VALUES ('empleados', (SELECT COUNT(*) FROM Empleados), @crc);
 
 SET @crc = '';
-    SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDTipoCliente, DescCliente)),2))
-    FROM ClienteDemografia ORDER BY IDTipoCliente;
-INSERT INTO valores_encontrados VALUES ('clientedemografia', (SELECT COUNT(*) FROM ClienteDemografia), @crc);
-
-SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDPedido, IDCliente, IDEmpleado, convert(varchar(25),FechaPedido,120), convert(varchar(25),FechaRequerida,120), convert(varchar(25),FechaEnvio,120), EnvioPor, Flete, NombreEnvio, DireccionEnvio, CiudadEnvio, RegionEnvio, CodigoPostalEnvio, PaisEnvio)),2))
     FROM Pedidos ORDER BY IDPedido;
 INSERT INTO valores_encontrados VALUES ('pedidos', (SELECT COUNT(*) FROM Pedidos), @crc);
-
-SET @crc = '';
-    SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDCliente, IDTipoCliente)),2))
-    FROM ClienteClienteDemo ORDER BY IDCliente, IDTipoCliente;
-INSERT INTO valores_encontrados VALUES ('clienteclientedemo', (SELECT COUNT(*) FROM ClienteClienteDemo), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDCliente, NombreEmpresa, NombreContacto, PuestoContacto, Direccion, Ciudad, Region, CodigoPostal, Pais, Telefono, Fax)),2))
