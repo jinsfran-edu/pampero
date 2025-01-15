@@ -22,7 +22,7 @@ CREATE TABLE Empleados(
 	Pais varchar(15) NULL,
 	TelefonoCasa varchar(24) NULL,
 	Interno varchar(4) NULL,
-	Notas varchar(max) NULL,
+	Notas varchar(4000) NULL,
 	JefeID int NULL,
 	RutaFoto varchar(255) NULL,
   CONSTRAINT CK_FechaNacimiento CHECK (FechaNacimiento<getdate()),
@@ -43,7 +43,7 @@ CREATE TABLE Proveedores(
 	Pais varchar(15) NULL,
 	Telefono varchar(24) NULL,
 	Fax varchar(24) NULL,
-	Web varchar(max) NULL,
+	Web varchar(4000) NULL,
  CONSTRAINT PK_Proveedores PRIMARY KEY (IDProveedor)
 );
 CREATE INDEX idx_nc_codigopostal  ON Proveedores (CodigoPostal);
@@ -52,7 +52,7 @@ CREATE INDEX idx_nc_nombreempresa ON Proveedores (NombreEmpresa);
 CREATE TABLE Categorias(
 	IDCategoria int IDENTITY(1,1) NOT NULL,
 	NombreCategoria varchar(15) NOT NULL,
-	Descripcion varchar(max) NULL,
+	Descripcion varchar(4000) NULL,
  CONSTRAINT PK_Categorias PRIMARY KEY (IDCategoria)
 );
 CREATE INDEX idx_nc_nombrecategoria ON Categorias (NombreCategoria);
@@ -3764,7 +3764,7 @@ FROM Pedidos AS O
     ON O.IDPedido = OD.IDPedido
 GROUP BY O.IDPedido, O.IDCliente, O.IDEmpleado, O.EnvioPor, O.FechaPedido, O.FechaRequerida, O.FechaEnvio;
 GO
-CREATE FUNCTION dbo.GetNums(@low AS BIGINT = 1, @high AS BIGINT)
+CREATE FUNCTION GetNums(@low AS BIGINT = 1, @high AS BIGINT)
   RETURNS TABLE
 AS
 RETURN
@@ -3785,21 +3785,21 @@ RETURN
   ORDER BY rownum;
 GO
 -- Crear y popular la tabla de números
-CREATE TABLE dbo.Nums(n INT NOT NULL CONSTRAINT PK_Nums PRIMARY KEY);
+CREATE TABLE Nums(n INT NOT NULL, CONSTRAINT PK_Nums PRIMARY KEY(n));
 
 DECLARE @max AS INT, @rc AS INT;
 SET @max = 100000;
 SET @rc = 1;
 
-INSERT INTO dbo.Nums VALUES(1);
+INSERT INTO Nums VALUES(1);
 WHILE @rc * 2 <= @max
 BEGIN
-  INSERT INTO dbo.Nums SELECT n + @rc FROM dbo.Nums;
+  INSERT INTO Nums SELECT n + @rc FROM Nums;
   SET @rc = @rc * 2;
 END
 
-INSERT INTO dbo.Nums 
-  SELECT n + @rc FROM dbo.Nums WHERE n + @rc <= @max;
+INSERT INTO Nums 
+  SELECT n + @rc FROM Nums WHERE n + @rc <= @max;
 GO
 
 SET NOCOUNT OFF;

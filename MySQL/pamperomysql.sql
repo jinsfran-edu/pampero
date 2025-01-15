@@ -3710,13 +3710,32 @@ FROM Pedidos AS O
     ON O.IDPedido = OD.IDPedido
 GROUP BY O.IDPedido, O.IDCliente, O.IDEmpleado, O.EnvioPor, O.FechaPedido, O.FechaRequerida, O.FechaEnvio;
 
+/* MySQL no soporta Funciones de Tabla 
+CREATE FUNCTION GetNums(@low AS BIGINT = 1, @high AS BIGINT)
+  RETURNS TABLE
+AS
+RETURN
+  WITH
+    L0 AS ( SELECT 1 AS c 
+            FROM (VALUES(1),(1),(1),(1),(1),(1),(1),(1),
+                        (1),(1),(1),(1),(1),(1),(1),(1)) AS D(c) ),
+    L1 AS ( SELECT 1 AS c FROM L0 AS A CROSS JOIN L0 AS B ),
+    L2 AS ( SELECT 1 AS c FROM L1 AS A CROSS JOIN L1 AS B ),
+    L3 AS ( SELECT 1 AS c FROM L2 AS A CROSS JOIN L2 AS B ),
+    Nums AS ( SELECT ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS rownum
+              FROM L3 )
+  SELECT TOP(@high - @low + 1)
+     rownum AS rn,
+     @high + 1 - rownum AS op,
+     @low - 1 + rownum AS n
+  FROM Nums
+  ORDER BY rownum;
+*/
 -- Crear y popular la tabla de números
-CREATE TABLE Nums(
-	n INT NOT NULL, 
-    CONSTRAINT PK_Nums PRIMARY KEY(n)
-);
+CREATE TABLE Nums(n INT NOT NULL, CONSTRAINT PK_Nums PRIMARY KEY(n));
+
 DELIMITER //
-CREATE PROCEDURE popnum()
+CREATE PROCEDURE popnum ()
 BEGIN
 	DECLARE max INT DEFAULT 100000;
 	DECLARE rc  INT DEFAULT 1;
@@ -3731,3 +3750,4 @@ END//
 DELIMITER ;
 
 CALL popnum;
+DROP PROCEDURE popnum;

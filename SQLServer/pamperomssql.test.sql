@@ -31,7 +31,8 @@ INSERT INTO valores_esperados VALUES
 ('empleados',                    9,'d57e46ced0bb0560b109431f8aaffcbf'),
 ('pedidos',                    830,'9074dc7fc43b45f19235aa986415f972'),
 ('clientes',                    91,'542b1771a6f2f3d43200ebc43d2b9b08'),
-('transportistas',               3,'684d81cf94d3977cd7dd8254b417c4da');
+('transportistas',               3,'684d81cf94d3977cd7dd8254b417c4da'),
+('nums',                    100000,'51f46071a3cc8fa00f638c7f5b089c86');
 
 SELECT tabla, regs AS registros_esperados, crc_md5 AS crc_esperado FROM valores_esperados;
 
@@ -89,6 +90,12 @@ SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDTransportista, NombreEmpresa, Telefono)),2))
     FROM Transportistas ORDER BY IDTransportista;
 INSERT INTO valores_encontrados VALUES ('transportistas', (SELECT COUNT(*) FROM Transportistas), @crc);
+
+SET @crc = '';
+    SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, n)),2))
+    FROM Nums ORDER BY n;
+INSERT INTO valores_encontrados VALUES ('nums', (SELECT COUNT(*) FROM Nums), @crc);
+
 
 SELECT tabla, regs AS 'registros_encontrados', crc_md5 AS crc_encontrado FROM valores_encontrados;
 
