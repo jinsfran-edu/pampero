@@ -5,7 +5,8 @@ DECLARE @crc as varchar(max);
 DECLARE @crc_fail as bigint;
 DECLARE @count_fail as bigint;
 DECLARE @tiempoini as datetime;
-SET @tiempoini=GETDATE();
+DECLARE @basecontrol as varchar(50);
+SET @tiempoini=CURRENT_TIMESTAMP;
 
 DROP TABLE IF EXISTS valores_esperados, valores_encontrados;
 CREATE TABLE valores_esperados (
@@ -111,9 +112,14 @@ SET @count_fail=(SELECT COUNT(*) FROM valores_esperados e INNER JOIN valores_enc
 
 DROP TABLE valores_esperados,valores_encontrados;
 
+IF @@version LIKE '%Azure%'
+    SET @basecontrol = 'master'
+ELSE
+    SET @basecontrol = 'msdb'
+
 SELECT 'UUID' AS Resumen, CAST([service_broker_guid] AS varchar(50)) AS 'Resultado'
 FROM   sys.databases
-WHERE [name] = N'msdb'
+WHERE [name] = @basecontrol
 UNION ALL
 SELECT 'Server Name', @@SERVERNAME
 UNION ALL
@@ -121,4 +127,4 @@ SELECT 'CRC', IIF(@crc_fail = 0, 'OK', 'Error')
 UNION ALL
 SELECT 'Cantidad', IIF(@count_fail = 0, 'OK', 'Error' )
 UNION ALL
-SELECT 'Tiempo', CAST(DATEDIFF(MILLISECOND,@tiempoini,GETDATE()) AS varchar(50));
+SELECT 'Tiempo', CAST(DATEDIFF(MILLISECOND,@tiempoini,CURRENT_TIMESTAMP) AS varchar(50));

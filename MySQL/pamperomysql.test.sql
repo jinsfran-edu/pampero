@@ -1,6 +1,6 @@
 USE Pampero;
 
-SET @tiempoini=NOW(6);
+SET @tiempoini=CURRENT_TIMESTAMP();
 
 DROP TABLE IF EXISTS valores_esperados, valores_encontrados;
 CREATE TABLE valores_esperados (
@@ -129,4 +129,4 @@ SELECT 'CRC', IF(@crc_fail = 0, 'OK', 'Error')
 UNION ALL
 SELECT 'Cantidad', IF(@count_fail = 0, 'OK', 'Error' )
 UNION ALL
-SELECT 'Tiempo', TIMESTAMPDIFF(MICROSECOND,@tiempoini,NOW(6))/1000;
+SELECT 'Tiempo', TIMESTAMPDIFF(MICROSECOND,@tiempoini,CURRENT_TIMESTAMP())/1000;
