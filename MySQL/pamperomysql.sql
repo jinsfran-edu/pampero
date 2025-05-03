@@ -1,6 +1,6 @@
 DROP DATABASE IF EXISTS Pampero;
 
-CREATE DATABASE Pampero CHARACTER SET utf8mb4 COLLATE utf8mb4_es_trad_0900_ai_ci;
+CREATE DATABASE Pampero CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish2_ci;
 
 USE Pampero;
 -- Crear tabla Empleados
@@ -60,11 +60,11 @@ CREATE TABLE Productos(
 	IDProveedor int NULL,
 	IDCategoria int NULL,
 	CantidadPorUnidad varchar(20) NULL,
-	PrecioUnitario decimal(19,4) NULL DEFAULT ((0)),
-	UnidadesEnStock smallint NULL DEFAULT ((0)),
-	UnidadesEnPedidos smallint NULL DEFAULT ((0)),
-	NivelNuevoPedido smallint NULL DEFAULT ((0)),
-	Discontinuado tinyint NOT NULL DEFAULT ((0)),
+	PrecioUnitario decimal(19,4) NULL DEFAULT 0,
+	UnidadesEnStock smallint NULL DEFAULT 0,
+	UnidadesEnPedidos smallint NULL DEFAULT 0,
+	NivelNuevoPedido smallint NULL DEFAULT 0,
+	Discontinuado tinyint NOT NULL DEFAULT 0,
  CONSTRAINT PK_Productos PRIMARY KEY (IDProducto),
  CONSTRAINT CK_NivelNuevoPedido CHECK  ((NivelNuevoPedido>=(0))),
  CONSTRAINT CK_Productos_PrecioUnitario CHECK  ((PrecioUnitario>=(0))),
@@ -111,7 +111,7 @@ CREATE TABLE Pedidos(
 	FechaRequerida datetime NULL,
 	FechaEnvio datetime NULL,
 	EnvioPor int NULL,
-	Flete decimal(19,4) NULL DEFAULT ((0)),
+	Flete decimal(19,4) NULL DEFAULT 0,
 	NombreEnvio varchar(40) NULL,
 	DireccionEnvio varchar(60) NULL,
 	CiudadEnvio varchar(15) NULL,
@@ -133,9 +133,9 @@ CREATE INDEX idx_nc_enviopor          ON Pedidos (EnvioPor);
 CREATE TABLE `Detalles Pedido`(
 	IDPedido int NOT NULL,
 	IDProducto int NOT NULL,
-	PrecioUnitario decimal(19,4) NOT NULL DEFAULT ((0)),
-	Cantidad smallint NOT NULL DEFAULT ((1)),
-	Descuento numeric(4,3) NOT NULL DEFAULT ((0)),
+	PrecioUnitario decimal(19,4) NOT NULL DEFAULT 0,
+	Cantidad smallint NOT NULL DEFAULT 1,
+	Descuento numeric(4,3) NOT NULL DEFAULT 0,
  CONSTRAINT PK_DetallesPedido PRIMARY KEY (IDPedido, IDProducto),
  CONSTRAINT FK_Detalles_Pedido_Pedidos FOREIGN KEY(IDPedido) REFERENCES Pedidos (IDPedido),
  CONSTRAINT FK_Detalles_Pedido_Productos FOREIGN KEY(IDProducto) REFERENCES Productos (IDProducto),
