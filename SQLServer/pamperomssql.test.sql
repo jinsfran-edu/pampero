@@ -8,20 +8,20 @@ DECLARE @tiempoini as datetime;
 DECLARE @basecontrol as varchar(50);
 SET @tiempoini=CURRENT_TIMESTAMP;
 
-DROP TABLE IF EXISTS valores_esperados, valores_encontrados;
-CREATE TABLE valores_esperados (
+DROP TABLE IF EXISTS #valores_esperados, #valores_encontrados;
+CREATE TABLE #valores_esperados (
     tabla   VARCHAR(30)  NOT NULL PRIMARY KEY,
     regs    INT          NOT NULL,
     crc_md5 VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE valores_encontrados (
+CREATE TABLE #valores_encontrados (
     tabla   VARCHAR(30)  NOT NULL PRIMARY KEY,
     regs    INT          NOT NULL,
     crc_md5 VARCHAR(100) NOT NULL
 );
 
-INSERT INTO valores_esperados VALUES 
+INSERT INTO #valores_esperados VALUES 
 ('categorias',                   8,'ac36ac06710f486dbc49e306365c4024'),
 ('proveedores',                 29,'c6c0a43e59a7217b61e02b8424a88676'),
 ('territorios',                 53,'3d5757c76dbbf0d190c2e7b6f5ddcd16'),
@@ -35,82 +35,82 @@ INSERT INTO valores_esperados VALUES
 ('transportistas',               3,'684d81cf94d3977cd7dd8254b417c4da'),
 ('nums',                    100000,'51f46071a3cc8fa00f638c7f5b089c86');
 
-SELECT tabla, regs AS registros_esperados, crc_md5 AS crc_esperado FROM valores_esperados;
+SELECT tabla, regs AS registros_esperados, crc_md5 AS crc_esperado FROM #valores_esperados;
 
 SET @crc= '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc,IDCategoria,NombreCategoria,Descripcion)),2))
     FROM Categorias ORDER BY IDCategoria;
-INSERT INTO valores_encontrados VALUES ('categorias', (SELECT COUNT(*) FROM Categorias),@crc);
+INSERT INTO #valores_encontrados VALUES ('categorias', (SELECT COUNT(*) FROM Categorias),@crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDProveedor, NombreEmpresa,NombreContacto, PuestoContacto, Direccion, Ciudad, Region, CodigoPostal, Pais, Telefono, Fax, Web)),2))
     FROM Proveedores ORDER BY IDProveedor;
-INSERT INTO valores_encontrados VALUES ('proveedores', (SELECT COUNT(*) FROM Proveedores), @crc);
+INSERT INTO #valores_encontrados VALUES ('proveedores', (SELECT COUNT(*) FROM Proveedores), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDTerritorio, RTRIM(DescripcionTerritorio), IDRegion)),2))
     FROM Territorios ORDER BY IDTerritorio;
-INSERT INTO valores_encontrados VALUES ('territorios', (SELECT COUNT(*) FROM Territorios), @crc);
+INSERT INTO #valores_encontrados VALUES ('territorios', (SELECT COUNT(*) FROM Territorios), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDTerritorio, IDTerritorio)),2))
     FROM EmpleadoTerritorios ORDER BY IDEmpleado, IDTerritorio;
-INSERT INTO valores_encontrados VALUES ('empleadoterritorios', (SELECT COUNT(*) FROM EmpleadoTerritorios), @crc);
+INSERT INTO #valores_encontrados VALUES ('empleadoterritorios', (SELECT COUNT(*) FROM EmpleadoTerritorios), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDProducto, NombreProducto, IDProveedor, IDCategoria, CantidadPorUnidad, PrecioUnitario, UnidadesEnStock, UnidadesEnPedidos, NivelNuevoPedido, Discontinuado)),2))
     FROM Productos ORDER BY IDProducto;
-INSERT INTO valores_encontrados VALUES ('productos', (SELECT COUNT(*) FROM Productos), @crc);
+INSERT INTO #valores_encontrados VALUES ('productos', (SELECT COUNT(*) FROM Productos), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDRegion, RTRIM(RegionDescripcion))),2))
     FROM Region ORDER BY IDRegion;
-INSERT INTO valores_encontrados VALUES ('region', (SELECT COUNT(*) FROM Region), @crc);
+INSERT INTO #valores_encontrados VALUES ('region', (SELECT COUNT(*) FROM Region), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento)),2))
     FROM [Detalles Pedido] ORDER BY IDPedido, IDProducto;
-INSERT INTO valores_encontrados VALUES ('detalles pedido', (SELECT COUNT(*) FROM [Detalles Pedido]), @crc);
+INSERT INTO #valores_encontrados VALUES ('detalles pedido', (SELECT COUNT(*) FROM [Detalles Pedido]), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDEmpleado, Apellido, Nombre, Puesto, Saludo, FechaNacimiento, FechaAlta, Direccion, Ciudad, Region, CodigoPostal, Pais, TelefonoCasa, Interno, Notas, JefeID, RutaFoto)),2))
     FROM Empleados ORDER BY IDEmpleado;
-INSERT INTO valores_encontrados VALUES ('empleados', (SELECT COUNT(*) FROM Empleados), @crc);
+INSERT INTO #valores_encontrados VALUES ('empleados', (SELECT COUNT(*) FROM Empleados), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDPedido, IDCliente, IDEmpleado, convert(varchar(25),FechaPedido,120), convert(varchar(25),FechaRequerida,120), convert(varchar(25),FechaEnvio,120), EnvioPor, Flete, NombreEnvio, DireccionEnvio, CiudadEnvio, RegionEnvio, CodigoPostalEnvio, PaisEnvio)),2))
     FROM Pedidos ORDER BY IDPedido;
-INSERT INTO valores_encontrados VALUES ('pedidos', (SELECT COUNT(*) FROM Pedidos), @crc);
+INSERT INTO #valores_encontrados VALUES ('pedidos', (SELECT COUNT(*) FROM Pedidos), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDCliente, NombreEmpresa, NombreContacto, PuestoContacto, Direccion, Ciudad, Region, CodigoPostal, Pais, Telefono, Fax)),2))
     FROM Clientes ORDER BY IDCliente;
-INSERT INTO valores_encontrados VALUES ('clientes', (SELECT COUNT(*) FROM Clientes), @crc);
+INSERT INTO #valores_encontrados VALUES ('clientes', (SELECT COUNT(*) FROM Clientes), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, IDTransportista, NombreEmpresa, Telefono)),2))
     FROM Transportistas ORDER BY IDTransportista;
-INSERT INTO valores_encontrados VALUES ('transportistas', (SELECT COUNT(*) FROM Transportistas), @crc);
+INSERT INTO #valores_encontrados VALUES ('transportistas', (SELECT COUNT(*) FROM Transportistas), @crc);
 
 SET @crc = '';
     SELECT @crc = LOWER(CONVERT(VARCHAR(32),HashBytes('MD5',CONCAT_WS('#',@crc, n)),2))
     FROM Nums ORDER BY n;
-INSERT INTO valores_encontrados VALUES ('nums', (SELECT COUNT(*) FROM Nums), @crc);
+INSERT INTO #valores_encontrados VALUES ('nums', (SELECT COUNT(*) FROM Nums), @crc);
 
 
-SELECT tabla, regs AS 'registros_encontrados', crc_md5 AS crc_encontrado FROM valores_encontrados;
+SELECT tabla, regs AS 'registros_encontrados', crc_md5 AS crc_encontrado FROM #valores_encontrados;
 
 SELECT  
     e.tabla, 
     IIF(e.regs=f.regs,'OK', 'No OK') AS coinciden_registros, 
     IIF(e.crc_md5=f.crc_md5,'OK','No OK') AS coindicen_crc 
 FROM 
-    valores_esperados e INNER JOIN valores_encontrados f ON e.tabla=f.tabla;
+    #valores_esperados e INNER JOIN #valores_encontrados f ON e.tabla=f.tabla;
 
-SET @crc_fail=(SELECT COUNT(*) FROM valores_esperados e INNER JOIN valores_encontrados f ON (e.tabla=f.tabla) WHERE f.crc_md5 != e.crc_md5);
-SET @count_fail=(SELECT COUNT(*) FROM valores_esperados e INNER JOIN valores_encontrados f ON (e.tabla=f.tabla) WHERE f.regs != e.regs);
+SET @crc_fail=(SELECT COUNT(*) FROM #valores_esperados e INNER JOIN #valores_encontrados f ON (e.tabla=f.tabla) WHERE f.crc_md5 != e.crc_md5);
+SET @count_fail=(SELECT COUNT(*) FROM #valores_esperados e INNER JOIN #valores_encontrados f ON (e.tabla=f.tabla) WHERE f.regs != e.regs);
 
-DROP TABLE valores_esperados,valores_encontrados;
+DROP TABLE #valores_esperados,#valores_encontrados;
 
 IF @@version LIKE '%Azure%'
     SET @basecontrol = 'master'
@@ -122,6 +122,10 @@ FROM   sys.databases
 WHERE [name] = @basecontrol
 UNION ALL
 SELECT 'Server Name', @@SERVERNAME
+UNION ALL
+SELECT 'Version', SERVERPROPERTY('productversion')
+UNION ALL
+SELECT 'Edition', SERVERPROPERTY('edition')
 UNION ALL
 SELECT 'CRC', IIF(@crc_fail = 0, 'OK', 'Error')
 UNION ALL

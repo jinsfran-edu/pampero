@@ -2,14 +2,14 @@ USE Pampero;
 
 SET @tiempoini=CURRENT_TIMESTAMP();
 
-DROP TABLE IF EXISTS valores_esperados, valores_encontrados;
-CREATE TABLE valores_esperados (
+DROP TEMPORARY TABLE IF EXISTS valores_esperados, valores_encontrados;
+CREATE TEMPORARY TABLE valores_esperados (
     tabla   VARCHAR(30)  NOT NULL PRIMARY KEY,
     regs    INT          NOT NULL,
     crc_md5 VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE valores_encontrados (
+CREATE TEMPORARY TABLE valores_encontrados (
     tabla   VARCHAR(30)  NOT NULL PRIMARY KEY,
     regs    INT          NOT NULL,
     crc_md5 VARCHAR(100) NOT NULL
@@ -32,8 +32,8 @@ INSERT INTO valores_esperados VALUES
 SELECT tabla, regs AS registros_esperados, crc_md5 AS crc_esperado FROM valores_esperados;
 
 SET @crc= '';
-DROP TABLE IF EXISTS tchecksum;
-CREATE TABLE tchecksum (chk char(100));
+DROP TEMPORARY TABLE IF EXISTS tchecksum;
+CREATE TEMPORARY TABLE tchecksum (chk char(100));
 INSERT INTO tchecksum 
     SELECT @crc := MD5(CONCAT_WS('#',@crc,IDCategoria,NombreCategoria,Descripcion))
     FROM Categorias ORDER BY IDCategoria;
@@ -105,7 +105,7 @@ INSERT INTO tchecksum
     FROM Nums ORDER BY n;
 INSERT INTO valores_encontrados VALUES ('nums', (SELECT COUNT(*) FROM Nums), @crc);
 
-DROP TABLE IF EXISTS tchecksum;
+DROP TEMPORARY TABLE IF EXISTS tchecksum;
 
 SELECT tabla, regs AS 'registros_encontrados', crc_md5 AS crc_encontrado FROM valores_encontrados;
 
@@ -119,11 +119,15 @@ FROM
 SET @crc_fail=(SELECT COUNT(*) FROM valores_esperados e INNER JOIN valores_encontrados f ON (e.tabla=f.tabla) WHERE f.crc_md5 != e.crc_md5);
 SET @count_fail=(SELECT COUNT(*) FROM valores_esperados e INNER JOIN valores_encontrados f ON (e.tabla=f.tabla) WHERE f.regs != e.regs);
 
-DROP TABLE valores_esperados,valores_encontrados;
+DROP TEMPORARY TABLE valores_esperados,valores_encontrados;
 
 SELECT 'UUID' AS Resumen, @@server_uuid AS Resultado
 UNION ALL
 SELECT 'Server Name', @@hostname
+UNION ALL
+SELECT 'Version', @@version
+UNION ALL
+SELECT 'Version Compile', @@version_compile_os
 UNION ALL
 SELECT 'CRC', IF(@crc_fail = 0, 'OK', 'Error')
 UNION ALL
