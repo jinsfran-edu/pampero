@@ -1,6 +1,6 @@
 DROP DATABASE IF EXISTS Pampero;
 
-CREATE DATABASE Pampero CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish2_ci;
+CREATE DATABASE Pampero CHARACTER SET utf8mb4 COLLATE utf8mb4_es_0900_ai_ci;
 
 USE Pampero;
 -- Crear tabla Empleados
