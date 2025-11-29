@@ -2,7 +2,7 @@ USE master;
 GO
 DROP DATABASE IF EXISTS Pampero;
 GO
-CREATE DATABASE Pampero COLLATE Traditional_Spanish_100_CI_AI_SC_UTF8;
+CREATE DATABASE Pampero COLLATE Modern_Spanish_100_CI_AI_SC_UTF8;
 GO
 USE Pampero;
 GO
