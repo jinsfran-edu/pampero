@@ -133,7 +133,7 @@ CREATE INDEX idx_pedidos_fechaenvio        ON Pedidos (FechaEnvio);
 CREATE INDEX idx_pedidos_fechapedido       ON Pedidos (FechaPedido);
 CREATE INDEX idx_pedidos_enviopor          ON Pedidos (EnvioPor);
 -- Crear tabla Detalles Pedido
-CREATE TABLE "Detalles Pedido"(
+CREATE TABLE [Detalles Pedido](
 	IDPedido int NOT NULL,
 	IDProducto int NOT NULL,
 	PrecioUnitario decimal(19,4) NOT NULL DEFAULT 0,
@@ -146,8 +146,8 @@ CREATE TABLE "Detalles Pedido"(
  CONSTRAINT CK_Descuento CHECK ((Descuento>=(0) AND Descuento<=(1))),
  CONSTRAINT CK_PrecioUnitario CHECK ((PrecioUnitario>=(0)))
 );
-CREATE INDEX idx_detallespedido_idpedido   ON "Detalles Pedido" (IDPedido);
-CREATE INDEX idx_detallespedido_idproducto ON "Detalles Pedido" (IDProducto);
+CREATE INDEX idx_detallespedido_idpedido   ON [Detalles Pedido] (IDPedido);
+CREATE INDEX idx_detallespedido_idproducto ON [Detalles Pedido] (IDProducto);
 -- Crear tabla Region
 CREATE TABLE Region(
 	IDRegion int NOT NULL,
@@ -1258,7 +1258,7 @@ INSERT INTO Pedidos (IDPedido, IDCliente, IDEmpleado, FechaPedido, FechaRequerid
 GO
 SET IDENTITY_INSERT Pedidos OFF
 GO
-INSERT INTO "Detalles Pedido" (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
+INSERT INTO [Detalles Pedido] (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
 (10248, 11, 14.0000, 12, 0),
 (10248, 42, 9.8000, 10, 0),
 (10248, 72, 34.8000, 5, 0),
@@ -2259,7 +2259,7 @@ INSERT INTO "Detalles Pedido" (IDPedido, IDProducto, PrecioUnitario, Cantidad, D
 (10625, 14, 23.2500, 3, 0),
 (10625, 42, 14.0000, 5, 0),
 (10625, 60, 34.0000, 10, 0);
-INSERT INTO "Detalles Pedido" (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
+INSERT INTO [Detalles Pedido] (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
 (10626, 53, 32.8000, 12, 0),
 (10626, 60, 34.0000, 20, 0),
 (10626, 71, 21.5000, 20, 0),
@@ -3260,7 +3260,7 @@ INSERT INTO "Detalles Pedido" (IDPedido, IDProducto, PrecioUnitario, Cantidad, D
 (11021, 51, 53.0000, 44, 0.25),
 (11021, 72, 34.8000, 35, 0),
 (11022, 19, 9.2000, 35, 0);
-INSERT INTO "Detalles Pedido" (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
+INSERT INTO [Detalles Pedido] (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
 (11022, 69, 36.0000, 30, 0),
 (11023, 7, 30.0000, 4, 0),
 (11023, 43, 46.0000, 30, 0),
@@ -3537,7 +3537,7 @@ SELECT NombreProducto,
     Cantidad,
     CAST(Descuento * 100 AS int) AS Descuento, 
     ROUND(CAST(Cantidad * (1 - Descuento) * Od.PrecioUnitario AS decimal(19,4)), 2) AS PrecioAmpliado
-FROM Productos P, "Detalles Pedido" Od
+FROM Productos P, [Detalles Pedido] Od
 WHERE Od.IDProducto = P.IDProducto and Od.IDPedido = @IDPedido;
 GO
 
@@ -3545,7 +3545,7 @@ CREATE PROCEDURE CliePedidosHist
 @IDCliente char(5)
 AS
 SELECT NombreProducto, SUM(Cantidad) AS Total
-FROM Productos P, "Detalles Pedido" OD, Pedidos O, Clientes C
+FROM Productos P, [Detalles Pedido] OD, Pedidos O, Clientes C
 WHERE C.IDCliente = @IDCliente
 AND C.IDCliente = O.IDCliente AND O.IDPedido = OD.IDPedido AND OD.IDProducto = P.IDProducto
 GROUP BY NombreProducto;
@@ -3564,30 +3564,30 @@ ORDER BY IDPedido;
 GO
 
 
-CREATE PROCEDURE "Diez productos mas caros" AS
+CREATE PROCEDURE [Diez productos mas caros] AS
 SELECT TOP 10 Productos.NombreProducto AS TenMostExpensiveProductos, Productos.PrecioUnitario
 FROM Productos
 ORDER BY Productos.PrecioUnitario DESC
 GO
 
-CREATE PROCEDURE "Ventas de empleados por pais" 
+CREATE PROCEDURE [Ventas de empleados por pais] 
 @Fecha_inicio DateTime, 
 @Fecha_fin DateTime 
 AS
-SELECT Empleados.Pais, Empleados.Apellido, Empleados.Nombre, Pedidos.FechaEnvio, Pedidos.IDPedido, "Subtotales de pedidos".Subtotal AS MontoVenta
+SELECT Empleados.Pais, Empleados.Apellido, Empleados.Nombre, Pedidos.FechaEnvio, Pedidos.IDPedido, [Subtotales de pedidos].Subtotal AS MontoVenta
 FROM Empleados INNER JOIN 
-	(Pedidos INNER JOIN "Subtotales de pedidos" ON Pedidos.IDPedido = "Subtotales de pedidos".IDPedido) 
+	(Pedidos INNER JOIN [Subtotales de pedidos] ON Pedidos.IDPedido = [Subtotales de pedidos].IDPedido) 
 	ON Empleados.IDEmpleado = Pedidos.IDEmpleado
 WHERE Pedidos.FechaEnvio Between @Fecha_inicio And @Fecha_fin;
 GO
 
 
-CREATE PROCEDURE "Ventas por Anio" 
+CREATE PROCEDURE [Ventas por Anio] 
 	@Fecha_inicio DateTime, 
 	@Fecha_fin DateTime 
 AS
-SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, "Subtotales de pedidos".Subtotal, DATENAME(yy,FechaEnvio) AS Anio
-FROM Pedidos INNER JOIN "Subtotales de pedidos" ON Pedidos.IDPedido = "Subtotales de pedidos".IDPedido
+SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, [Subtotales de pedidos].Subtotal, DATENAME(yy,FechaEnvio) AS Anio
+FROM Pedidos INNER JOIN [Subtotales de pedidos] ON Pedidos.IDPedido = [Subtotales de pedidos].IDPedido
 WHERE Pedidos.FechaEnvio Between @Fecha_inicio And @Fecha_fin;
 GO
 
@@ -3602,7 +3602,7 @@ END
 
 SELECT NombreProducto,
 	ROUND(SUM(CAST(OD.Cantidad * (1-OD.Descuento) * OD.PrecioUnitario AS decimal(14,2))), 0) AS CompraTotal
-FROM "Detalles Pedido" OD, Pedidos O, Productos P, Categorias C
+FROM [Detalles Pedido] OD, Pedidos O, Productos P, Categorias C
 WHERE OD.IDPedido = O.IDPedido 
 	AND OD.IDProducto = P.IDProducto 
 	AND P.IDCategoria = C.IDCategoria
@@ -3611,41 +3611,41 @@ WHERE OD.IDPedido = O.IDPedido
 GROUP BY NombreProducto
 ORDER BY NombreProducto;
 GO
-CREATE VIEW "Clientes y Proveedores por Ciudad" AS
+CREATE VIEW [Clientes y Proveedores por Ciudad] AS
 SELECT Ciudad, NombreEmpresa, NombreContacto, 'Clientes' AS Relacion 
 FROM Clientes
 UNION SELECT Ciudad, NombreEmpresa, NombreContacto, 'Proveedores'
 FROM Proveedores;
 GO
-CREATE VIEW "Lista alfabetica de productos" AS
+CREATE VIEW [Lista alfabetica de productos] AS
 SELECT Productos.*, Categorias.NombreCategoria
 FROM Categorias INNER JOIN Productos ON Categorias.IDCategoria = Productos.IDCategoria
 WHERE (((Productos.Discontinuado)=0));
 GO
-CREATE VIEW "Lista de productos actual" AS
+CREATE VIEW [Lista de productos actual] AS
 SELECT Product_List.IDProducto, Product_List.NombreProducto
 FROM Productos AS Product_List
 WHERE (((Product_List.Discontinuado)=0));
 GO
-CREATE VIEW "Consulta de pedidos" AS
+CREATE VIEW [Consulta de pedidos] AS
 SELECT Pedidos.IDPedido, Pedidos.IDCliente, Pedidos.IDEmpleado, Pedidos.FechaPedido, Pedidos.FechaRequerida, 
 	Pedidos.FechaEnvio, Pedidos.EnvioPor, Pedidos.Flete, Pedidos.NombreEnvio, Pedidos.DireccionEnvio, Pedidos.CiudadEnvio, 
 	Pedidos.RegionEnvio, Pedidos.CodigoPostalEnvio, Pedidos.PaisEnvio, 
 	Clientes.NombreEmpresa, Clientes.Direccion, Clientes.Ciudad, Clientes.Region, Clientes.CodigoPostal, Clientes.Pais
 FROM Clientes INNER JOIN Pedidos ON Clientes.IDCliente = Pedidos.IDCliente;
 GO
-CREATE VIEW "Productos por encima del precio promedio" AS
+CREATE VIEW [Productos por encima del precio promedio] AS
 SELECT Productos.NombreProducto, Productos.PrecioUnitario
 FROM Productos
 WHERE Productos.PrecioUnitario>(SELECT AVG(PrecioUnitario) From Productos);
 GO
-CREATE VIEW "Productos por categoria" AS
+CREATE VIEW [Productos por categoria] AS
 SELECT Categorias.NombreCategoria, Productos.NombreProducto, Productos.CantidadPorUnidad, Productos.UnidadesEnStock, Productos.Discontinuado
 FROM Categorias INNER JOIN Productos ON Categorias.IDCategoria = Productos.IDCategoria
 WHERE Productos.Discontinuado <> 1;
 GO
 
-CREATE VIEW "Pedidos Trimestrales" AS
+CREATE VIEW [Pedidos Trimestrales] AS
 SELECT DISTINCT Clientes.IDCliente, Clientes.NombreEmpresa, Clientes.Ciudad, Clientes.Pais
 FROM Clientes RIGHT JOIN Pedidos ON Clientes.IDCliente = Pedidos.IDCliente
 WHERE Pedidos.FechaPedido BETWEEN '20200101' And '20201231';
@@ -3656,79 +3656,79 @@ SELECT Pedidos.NombreEnvio, Pedidos.DireccionEnvio, Pedidos.CiudadEnvio, Pedidos
 	Clientes.Region, Clientes.CodigoPostal, Clientes.Pais, 
 	CONCAT(Nombre, ' ', Apellido) AS Vendedor, 
 	Pedidos.IDPedido, Pedidos.FechaPedido, Pedidos.FechaRequerida, Pedidos.FechaEnvio, Transportistas.NombreEmpresa As NombreTransportista, 
-	"Detalles Pedido".IDProducto, Productos.NombreProducto, "Detalles Pedido".PrecioUnitario, "Detalles Pedido".Cantidad, 
-	"Detalles Pedido".Descuento, 
-	(CAST(("Detalles Pedido".PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS PrecioAmpliado, Pedidos.Flete
+	[Detalles Pedido].IDProducto, Productos.NombreProducto, [Detalles Pedido].PrecioUnitario, [Detalles Pedido].Cantidad, 
+	[Detalles Pedido].Descuento, 
+	(CAST(([Detalles Pedido].PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS PrecioAmpliado, Pedidos.Flete
 FROM 	Transportistas INNER JOIN 
 		(Productos INNER JOIN 
 			(
 				(Empleados INNER JOIN 
 					(Clientes INNER JOIN Pedidos ON Clientes.IDCliente = Pedidos.IDCliente) 
 				ON Empleados.IDEmpleado = Pedidos.IDEmpleado) 
-			INNER JOIN "Detalles Pedido" ON Pedidos.IDPedido = "Detalles Pedido".IDPedido) 
-		ON Productos.IDProducto = "Detalles Pedido".IDProducto) 
+			INNER JOIN [Detalles Pedido] ON Pedidos.IDPedido = [Detalles Pedido].IDPedido) 
+		ON Productos.IDProducto = [Detalles Pedido].IDProducto) 
 	ON Transportistas.IDTransportista = Pedidos.EnvioPor;
 GO
 
-CREATE VIEW "Detalles Pedido ampliados" AS
-SELECT "Detalles Pedido".IDPedido, "Detalles Pedido".IDProducto, Productos.NombreProducto, 
-	"Detalles Pedido".PrecioUnitario, "Detalles Pedido".Cantidad, "Detalles Pedido".Descuento, 
-	(CAST(("Detalles Pedido".PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS PrecioAmpliado
-FROM Productos INNER JOIN "Detalles Pedido" ON Productos.IDProducto = "Detalles Pedido".IDProducto;
+CREATE VIEW [Detalles Pedido ampliados] AS
+SELECT [Detalles Pedido].IDPedido, [Detalles Pedido].IDProducto, Productos.NombreProducto, 
+	[Detalles Pedido].PrecioUnitario, [Detalles Pedido].Cantidad, [Detalles Pedido].Descuento, 
+	(CAST(([Detalles Pedido].PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS PrecioAmpliado
+FROM Productos INNER JOIN [Detalles Pedido] ON Productos.IDProducto = [Detalles Pedido].IDProducto;
 GO
 
-CREATE VIEW "Subtotales de pedidos" AS
-SELECT "Detalles Pedido".IDPedido, Sum(CAST(("Detalles Pedido".PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS Subtotal
-FROM "Detalles Pedido"
-GROUP BY "Detalles Pedido".IDPedido;
+CREATE VIEW [Subtotales de pedidos] AS
+SELECT [Detalles Pedido].IDPedido, Sum(CAST(([Detalles Pedido].PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS Subtotal
+FROM [Detalles Pedido]
+GROUP BY [Detalles Pedido].IDPedido;
 GO
 
-CREATE VIEW "Ventas de productos para 2020" AS
+CREATE VIEW [Ventas de productos para 2020] AS
 SELECT Categorias.NombreCategoria, Productos.NombreProducto, 
-Sum(CAST(("Detalles Pedido".PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS VentasProducto
+Sum(CAST(([Detalles Pedido].PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS VentasProducto
 FROM (Categorias INNER JOIN Productos ON Categorias.IDCategoria = Productos.IDCategoria) 
 	INNER JOIN (Pedidos 
-		INNER JOIN "Detalles Pedido" ON Pedidos.IDPedido = "Detalles Pedido".IDPedido) 
-	ON Productos.IDProducto = "Detalles Pedido".IDProducto
+		INNER JOIN [Detalles Pedido] ON Pedidos.IDPedido = [Detalles Pedido].IDPedido) 
+	ON Productos.IDProducto = [Detalles Pedido].IDProducto
 WHERE (((Pedidos.FechaEnvio) Between '20200101' And '20201231'))
 GROUP BY Categorias.NombreCategoria, Productos.NombreProducto;
 GO
 
-CREATE VIEW "Ventas por Categoria en 2020" AS
-SELECT "Ventas de productos para 2020".NombreCategoria, Sum("Ventas de productos para 2020".VentasProducto) AS VentasCategoria
-FROM "Ventas de productos para 2020"
-GROUP BY "Ventas de productos para 2020".NombreCategoria;
+CREATE VIEW [Ventas por Categoria en 2020] AS
+SELECT [Ventas de productos para 2020].NombreCategoria, Sum([Ventas de productos para 2020].VentasProducto) AS VentasCategoria
+FROM [Ventas de productos para 2020]
+GROUP BY [Ventas de productos para 2020].NombreCategoria;
 GO
 
-CREATE VIEW "Ventas por Categoria" AS
+CREATE VIEW [Ventas por Categoria] AS
 SELECT Categorias.IDCategoria, Categorias.NombreCategoria, Productos.NombreProducto, 
-	Sum("Detalles Pedido ampliados".PrecioAmpliado) AS VentasProducto
+	Sum([Detalles Pedido ampliados].PrecioAmpliado) AS VentasProducto
 FROM 	Categorias INNER JOIN 
 		(Productos INNER JOIN 
-			(Pedidos INNER JOIN "Detalles Pedido ampliados" ON Pedidos.IDPedido = "Detalles Pedido ampliados".IDPedido) 
-		ON Productos.IDProducto = "Detalles Pedido ampliados".IDProducto) 
+			(Pedidos INNER JOIN [Detalles Pedido ampliados] ON Pedidos.IDPedido = [Detalles Pedido ampliados].IDPedido) 
+		ON Productos.IDProducto = [Detalles Pedido ampliados].IDProducto) 
 	ON Categorias.IDCategoria = Productos.IDCategoria
 WHERE Pedidos.FechaPedido BETWEEN '20200101' And '20201231'
 GROUP BY Categorias.IDCategoria, Categorias.NombreCategoria, Productos.NombreProducto;
 GO
 
-CREATE VIEW "Totales de ventas por cantidad" AS
-SELECT "Subtotales de pedidos".Subtotal AS MontoVenta, Pedidos.IDPedido, Clientes.NombreEmpresa, Pedidos.FechaEnvio
+CREATE VIEW [Totales de ventas por cantidad] AS
+SELECT [Subtotales de pedidos].Subtotal AS MontoVenta, Pedidos.IDPedido, Clientes.NombreEmpresa, Pedidos.FechaEnvio
 FROM 	Clientes INNER JOIN 
-		(Pedidos INNER JOIN "Subtotales de pedidos" ON Pedidos.IDPedido = "Subtotales de pedidos".IDPedido) 
+		(Pedidos INNER JOIN [Subtotales de pedidos] ON Pedidos.IDPedido = [Subtotales de pedidos].IDPedido) 
 	ON Clientes.IDCliente = Pedidos.IDCliente
-WHERE ("Subtotales de pedidos".Subtotal >2500) AND (Pedidos.FechaEnvio BETWEEN '20200101' And '20201231');
+WHERE ([Subtotales de pedidos].Subtotal >2500) AND (Pedidos.FechaEnvio BETWEEN '20200101' And '20201231');
 GO
 
-CREATE VIEW "Resumen de Ventas por Trimestre" AS
-SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, "Subtotales de pedidos".Subtotal
-FROM Pedidos INNER JOIN "Subtotales de pedidos" ON Pedidos.IDPedido = "Subtotales de pedidos".IDPedido
+CREATE VIEW [Resumen de Ventas por Trimestre] AS
+SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, [Subtotales de pedidos].Subtotal
+FROM Pedidos INNER JOIN [Subtotales de pedidos] ON Pedidos.IDPedido = [Subtotales de pedidos].IDPedido
 WHERE Pedidos.FechaEnvio IS NOT NULL;
 GO
 
-CREATE VIEW "Resumen de Ventas por Anio" AS
-SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, "Subtotales de pedidos".Subtotal
-FROM Pedidos INNER JOIN "Subtotales de pedidos" ON Pedidos.IDPedido = "Subtotales de pedidos".IDPedido
+CREATE VIEW [Resumen de Ventas por Anio] AS
+SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, [Subtotales de pedidos].Subtotal
+FROM Pedidos INNER JOIN [Subtotales de pedidos] ON Pedidos.IDPedido = [Subtotales de pedidos].IDPedido
 WHERE Pedidos.FechaEnvio IS NOT NULL;
 GO
 
@@ -3738,7 +3738,7 @@ SELECT
   DATEADD(month, DATEDIFF(month, CAST('19000101' AS DATE), O.FechaPedido), CAST('19000101' AS DATE)) AS MesOrden,
   SUM(OD.Cantidad) AS cantidad
 FROM Pedidos AS O
-  JOIN "Detalles Pedido" AS OD
+  JOIN [Detalles Pedido] AS OD
     ON OD.IDPedido = O.IDPedido
 GROUP BY IDCliente, DATEADD(month, DATEDIFF(month, CAST('19000101' AS DATE), O.FechaPedido), CAST('19000101' AS DATE));
 GO
@@ -3748,7 +3748,7 @@ SELECT O.IDPedido, O.IDCliente, O.IDEmpleado, O.EnvioPor, O.FechaPedido, O.Fecha
   CAST(SUM(OD.Cantidad * OD.PrecioUnitario * (1 - OD.Descuento))
        AS decimal(12, 2)) AS val
 FROM Pedidos AS O
-  JOIN "Detalles Pedido" AS OD
+  JOIN [Detalles Pedido] AS OD
     ON O.IDPedido = OD.IDPedido
 GROUP BY O.IDPedido, O.IDCliente, O.IDEmpleado, O.EnvioPor, O.FechaPedido, O.FechaRequerida, O.FechaEnvio;
 GO
