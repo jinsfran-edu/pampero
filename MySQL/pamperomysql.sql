@@ -25,6 +25,8 @@ CREATE TABLE Empleados(
 	JefeID int NULL,
 	RutaFoto varchar(255) NULL,
 -- CONSTRAINT CK_FechaNacimiento CHECK ((FechaNacimiento<getdate()))
+/* En MySQL no se pueden usar funciones en las restricciones CHECK
+   Lo vamos a implementar mediante Trigger */
  CONSTRAINT PK_Empleados PRIMARY KEY (IDEmpleado)
 );
 CREATE INDEX idx_empleado_apellido     ON Empleados (Apellido);
@@ -169,6 +171,20 @@ CREATE TABLE EmpleadoTerritorios(
 	CONSTRAINT FK_EmpleadoTerritorios_Empleados FOREIGN KEY(IDEmpleado) REFERENCES Empleados (IDEmpleado),
 	CONSTRAINT FK_EmpleadoTerritorios_Territorios FOREIGN KEY(IDTerritorio) REFERENCES Territorios (IDTerritorio)
 );
+
+DELIMITER $$
+
+CREATE TRIGGER tr_CK_FechaNacimiento
+BEFORE INSERT ON empleados
+FOR EACH ROW
+BEGIN
+    IF NEW.FechaNacimiento > CURRENT_DATE() THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'La fecha de nacimiento no puede ser mayor a la fecha actual';
+    END IF;
+END$$
+
+DELIMITER ;
 
 INSERT INTO Empleados (IDEmpleado, Apellido, Nombre, Puesto, Saludo, FechaNacimiento, FechaAlta, Direccion, Ciudad, Region, CodigoPostal, Pais, TelefonoCasa, Interno, Notas, JefeID, RutaFoto) VALUES 
 (1, 'Davolio', 'Nancy', 'Representante de Ventas', 'Srta.', '19711208', '20150501', '507 - 20th Ave. E. Apt. 2A', 'Seattle', 'WA', '98122', 'EE.UU.', '(206) 555-9857', '5467', 'La educación incluye una licenciatura en psicología de la Universidad Estatal de Colorado en 1970. También completó "El arte de la llamada en frío". Nancy es miembro de Toastmasters International.', 2, 'http://accweb/emmployees/davolio.bmp'),
