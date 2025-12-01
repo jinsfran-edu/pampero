@@ -1,6 +1,8 @@
 DROP DATABASE IF EXISTS Pampero;
 
-CREATE DATABASE Pampero CHARACTER SET utf8mb4 COLLATE utf8mb4_es_0900_ai_ci;
+CREATE DATABASE Pampero
+    CHARACTER SET utf8mb4
+	COLLATE utf8mb4_es_0900_ai_ci;
 
 USE Pampero;
 -- Crear tabla Empleados
@@ -25,8 +27,8 @@ CREATE TABLE Empleados(
 -- CONSTRAINT CK_FechaNacimiento CHECK ((FechaNacimiento<getdate()))
  CONSTRAINT PK_Empleados PRIMARY KEY (IDEmpleado)
 );
-CREATE INDEX idx_nc_apellido     ON Empleados (Apellido);
-CREATE INDEX idx_nc_codigopostal ON Empleados (CodigoPostal);
+CREATE INDEX idx_empleado_apellido     ON Empleados (Apellido);
+CREATE INDEX idx_empleado_codigopostal ON Empleados (CodigoPostal);
 -- Crear tabla Proveedores
 CREATE TABLE Proveedores(
 	IDProveedor int AUTO_INCREMENT NOT NULL,
@@ -43,8 +45,8 @@ CREATE TABLE Proveedores(
 	Web varchar(4000) NULL,
  CONSTRAINT PK_Proveedores PRIMARY KEY (IDProveedor)
 );
-CREATE INDEX idx_nc_codigopostal  ON Proveedores (CodigoPostal);
-CREATE INDEX idx_nc_nombreempresa ON Proveedores (NombreEmpresa);
+CREATE INDEX idx_proveedor_codigopostal  ON Proveedores (CodigoPostal);
+CREATE INDEX idx_proveedor_nombreempresa ON Proveedores (NombreEmpresa);
 -- Crear tabla Categorias
 CREATE TABLE Categorias(
 	IDCategoria int AUTO_INCREMENT NOT NULL,
@@ -52,7 +54,7 @@ CREATE TABLE Categorias(
 	Descripcion varchar(4000) NULL,
  CONSTRAINT PK_Categorias PRIMARY KEY (IDCategoria)
 );
-CREATE INDEX idx_nc_nombrecategoria ON Categorias (NombreCategoria);
+CREATE INDEX idx_categoria_nombrecategoria ON Categorias (NombreCategoria);
 -- Crear tabla Productos
 CREATE TABLE Productos(
 	IDProducto int AUTO_INCREMENT NOT NULL,
@@ -60,11 +62,11 @@ CREATE TABLE Productos(
 	IDProveedor int NULL,
 	IDCategoria int NULL,
 	CantidadPorUnidad varchar(20) NULL,
-	PrecioUnitario decimal(19,4) NULL DEFAULT 0,
+	PrecioUnitario decimal(19,4) DEFAULT 0,
 	UnidadesEnStock smallint NULL DEFAULT 0,
 	UnidadesEnPedidos smallint NULL DEFAULT 0,
 	NivelNuevoPedido smallint NULL DEFAULT 0,
-	Discontinuado tinyint NOT NULL DEFAULT 0,
+	Discontinuado smallint NOT NULL DEFAULT 0,
  CONSTRAINT PK_Productos PRIMARY KEY (IDProducto),
  CONSTRAINT CK_NivelNuevoPedido CHECK  ((NivelNuevoPedido>=(0))),
  CONSTRAINT CK_Productos_PrecioUnitario CHECK  ((PrecioUnitario>=(0))),
@@ -73,9 +75,9 @@ CREATE TABLE Productos(
  CONSTRAINT FK_Productos_Categorias FOREIGN KEY(IDCategoria) REFERENCES Categorias (IDCategoria),
  CONSTRAINT FK_Productos_Proveedores FOREIGN KEY(IDProveedor) REFERENCES Proveedores (IDProveedor)
 );
-CREATE INDEX idx_nc_categoriaid    ON Productos (IDCategoria);
-CREATE INDEX idx_nc_nombreproducto ON Productos (NombreProducto);
-CREATE INDEX idx_nc_proveedorid    ON Productos (IDProveedor);
+CREATE INDEX idx_producto_categoriaid    ON Productos (IDCategoria);
+CREATE INDEX idx_producto_nombreproducto ON Productos (NombreProducto);
+CREATE INDEX idx_producto_proveedorid    ON Productos (IDProveedor);
 -- Crear tabla Clientes
 CREATE TABLE Clientes(
 	IDCliente char(5) NOT NULL,
@@ -91,10 +93,10 @@ CREATE TABLE Clientes(
 	Fax varchar(24) NULL,
  CONSTRAINT PK_Clientes PRIMARY KEY (IDCliente)
 );
-CREATE INDEX idx_nc_ciudad        ON Clientes (Ciudad);
-CREATE INDEX idx_nc_codigopostal  ON Clientes (CodigoPostal);
-CREATE INDEX idx_nc_nombreempresa ON Clientes (NombreEmpresa);
-CREATE INDEX idx_nc_region        ON Clientes (Region);
+CREATE INDEX idx_clientes_ciudad        ON Clientes (Ciudad);
+CREATE INDEX idx_clientes_codigopostal  ON Clientes (CodigoPostal);
+CREATE INDEX idx_clientes_nombreempresa ON Clientes (NombreEmpresa);
+CREATE INDEX idx_clientes_region        ON Clientes (Region);
 -- Crear tabla Transportistas
 CREATE TABLE Transportistas(
 	IDTransportista int AUTO_INCREMENT NOT NULL,
@@ -111,7 +113,7 @@ CREATE TABLE Pedidos(
 	FechaRequerida datetime NULL,
 	FechaEnvio datetime NULL,
 	EnvioPor int NULL,
-	Flete decimal(19,4) NULL DEFAULT 0,
+	Flete decimal(19,4) DEFAULT 0,
 	NombreEnvio varchar(40) NULL,
 	DireccionEnvio varchar(60) NULL,
 	CiudadEnvio varchar(15) NULL,
@@ -123,19 +125,19 @@ CREATE TABLE Pedidos(
  CONSTRAINT FK_Pedidos_Empleados FOREIGN KEY(IDEmpleado) REFERENCES Empleados (IDEmpleado),
  CONSTRAINT FK_Pedidos_Transportistas FOREIGN KEY(EnvioPor) REFERENCES Transportistas (IDTransportista)
 );
-CREATE INDEX idx_nc_idcliente         ON Pedidos (IDCliente);
-CREATE INDEX idx_nc_codigopostalenvio ON Pedidos (CodigoPostalEnvio);
-CREATE INDEX idx_nc_idempleado        ON Pedidos (IDEmpleado);
-CREATE INDEX idx_nc_fechaenvio        ON Pedidos (FechaEnvio);
-CREATE INDEX idx_nc_fechapedido       ON Pedidos (FechaPedido);
-CREATE INDEX idx_nc_enviopor          ON Pedidos (EnvioPor);
+CREATE INDEX idx_pedidos_idcliente         ON Pedidos (IDCliente);
+CREATE INDEX idx_pedidos_codigopostalenvio ON Pedidos (CodigoPostalEnvio);
+CREATE INDEX idx_pedidos_idempleado        ON Pedidos (IDEmpleado);
+CREATE INDEX idx_pedidos_fechaenvio        ON Pedidos (FechaEnvio);
+CREATE INDEX idx_pedidos_fechapedido       ON Pedidos (FechaPedido);
+CREATE INDEX idx_pedidos_enviopor          ON Pedidos (EnvioPor);
 -- Crear tabla Detalles Pedido
 CREATE TABLE `Detalles Pedido`(
 	IDPedido int NOT NULL,
 	IDProducto int NOT NULL,
 	PrecioUnitario decimal(19,4) NOT NULL DEFAULT 0,
 	Cantidad smallint NOT NULL DEFAULT 1,
-	Descuento numeric(4,3) NOT NULL DEFAULT 0,
+	Descuento decimal(4,3) NOT NULL DEFAULT 0,
  CONSTRAINT PK_DetallesPedido PRIMARY KEY (IDPedido, IDProducto),
  CONSTRAINT FK_Detalles_Pedido_Pedidos FOREIGN KEY(IDPedido) REFERENCES Pedidos (IDPedido),
  CONSTRAINT FK_Detalles_Pedido_Productos FOREIGN KEY(IDProducto) REFERENCES Productos (IDProducto),
@@ -143,8 +145,8 @@ CREATE TABLE `Detalles Pedido`(
  CONSTRAINT CK_Descuento CHECK ((Descuento>=(0) AND Descuento<=(1))),
  CONSTRAINT CK_PrecioUnitario CHECK ((PrecioUnitario>=(0)))
 );
-CREATE INDEX idx_nc_idpedido   ON `Detalles Pedido` (IDPedido);
-CREATE INDEX idx_nc_idproducto ON `Detalles Pedido` (IDProducto);
+CREATE INDEX idx_detallespedido_idpedido   ON `Detalles Pedido` (IDPedido);
+CREATE INDEX idx_detallespedido_idproducto ON `Detalles Pedido` (IDProducto);
 -- Crear tabla Region
 CREATE TABLE Region(
 	IDRegion int NOT NULL,
@@ -168,7 +170,7 @@ CREATE TABLE EmpleadoTerritorios(
 	CONSTRAINT FK_EmpleadoTerritorios_Territorios FOREIGN KEY(IDTerritorio) REFERENCES Territorios (IDTerritorio)
 );
 
-INSERT Empleados (IDEmpleado, Apellido, Nombre, Puesto, Saludo, FechaNacimiento, FechaAlta, Direccion, Ciudad, Region, CodigoPostal, Pais, TelefonoCasa, Interno, Notas, JefeID, RutaFoto) VALUES 
+INSERT INTO Empleados (IDEmpleado, Apellido, Nombre, Puesto, Saludo, FechaNacimiento, FechaAlta, Direccion, Ciudad, Region, CodigoPostal, Pais, TelefonoCasa, Interno, Notas, JefeID, RutaFoto) VALUES 
 (1, 'Davolio', 'Nancy', 'Representante de Ventas', 'Srta.', '19711208', '20150501', '507 - 20th Ave. E. Apt. 2A', 'Seattle', 'WA', '98122', 'EE.UU.', '(206) 555-9857', '5467', 'La educación incluye una licenciatura en psicología de la Universidad Estatal de Colorado en 1970. También completó "El arte de la llamada en frío". Nancy es miembro de Toastmasters International.', 2, 'http://accweb/emmployees/davolio.bmp'),
 (2, 'Fuller', 'Andrew', 'Vicepresidente, Ventas', 'Dr.', '19750219', '20150814', '908 W. Capital Way', 'Tacoma', 'WA', '98401', 'EE.UU.', '(206) 555-9482', '3457', 'Andrew recibió su comercial BTS en 1997 y un Ph.D. en marketing internacional de la Universidad de Dallas en 2004. Habla francés e italiano con fluidez y lee alemán. Se incorporó a la empresa como Representante de Ventas, fue ascendido a Gerente de Ventas en enero de 2015 y a vicepresidente de ventas en marzo de 2016. Andrew es miembro de Sales Management Roundtable, la Cámara de Comercio de Seattle y la Asociación Pacific Rim Importers.', NULL, 'http://accweb/emmployees/fuller.bmp'),
 (3, 'Leverling', 'Janet', 'Representante de Ventas', 'Srta.', '19860830', '20150401', '722 Moss Bay Blvd.', 'Kirkland', 'WA', '98033', 'EE.UU.', '(206) 555-3412', '3355', 'Janet tiene una licenciatura en química del Boston College (2007). También completó un programa de certificación en administración de venta minorista de alimentos. Janet fue contratada como Asociado de Ventas en 2014 y ascendida a Representante de Ventas en febrero de 2015.', 2, 'http://accweb/emmployees/leverling.bmp'),
@@ -181,7 +183,7 @@ INSERT Empleados (IDEmpleado, Apellido, Nombre, Puesto, Saludo, FechaNacimiento,
 
 ALTER TABLE Empleados ADD CONSTRAINT FK_Empleados_Empleados FOREIGN KEY(JefeID) REFERENCES Empleados (IDEmpleado);
 
-INSERT Proveedores (IDProveedor, NombreEmpresa, NombreContacto, PuestoContacto, Direccion, Ciudad, Region, CodigoPostal, Pais, Telefono, Fax, Web) VALUES 
+INSERT INTO Proveedores (IDProveedor, NombreEmpresa, NombreContacto, PuestoContacto, Direccion, Ciudad, Region, CodigoPostal, Pais, Telefono, Fax, Web) VALUES 
 (1, 'Exotic Liquids', 'Charlotte Cooper', 'Gerente de Compras', '49 Gilbert St.', 'London', NULL, 'EC1 4SD', 'Reino Unido', '(171) 555-2222', NULL, NULL),
 (2, 'New Orleans Cajun Delights', 'Shelley Burke', 'Administrador de pedidos', 'P.O. Box 78934', 'New Orleans', 'LA', '70117', 'EE.UU.', '(100) 555-4822', NULL, '#CAJUN.HTM#'),
 (3, 'Grandma Kelly''s Homestead', 'Regina Murphy', 'Representante de Ventas', '707 Oxford Rd.', 'Ann Arbor', 'MI', '48104', 'EE.UU.', '(313) 555-5735', '(313) 555-3349', NULL),
@@ -212,7 +214,7 @@ INSERT Proveedores (IDProveedor, NombreEmpresa, NombreContacto, PuestoContacto, 
 (28, 'Gai pâturage', 'Eliane Noz', 'Representante de Ventas', 'Bat. B 3, rue des Alpes', 'Annecy', NULL, '74000', 'Francia', '38.76.98.06', '38.76.98.58', NULL),
 (29, 'Forêts d''érables', 'Chantal Goulet', 'Gerente de Contabilidad', '148 rue Chasseur', 'Ste-Hyacinthe', 'Québec', 'J2S 7S8', 'Canadá', '(514) 555-2955', '(514) 555-2921', NULL);
 
-INSERT Categorias (IDCategoria, NombreCategoria, Descripcion) VALUES 
+INSERT INTO Categorias (IDCategoria, NombreCategoria, Descripcion) VALUES 
 (1, 'Bebidas', 'Refrescos, cafés, tés y cervezas'),
 (2, 'Condimentos', 'Salsas dulces y saladas, pastas para untar y condimentos'),
 (3, 'Dulces', 'Postres, dulces y panes dulces'),
@@ -222,7 +224,7 @@ INSERT Categorias (IDCategoria, NombreCategoria, Descripcion) VALUES
 (7, 'Frutos', 'Frutos secos y tofu'),
 (8, 'Mariscos', 'Algas y pescados');
 
-INSERT Productos (IDProducto, NombreProducto, IDProveedor, IDCategoria, CantidadPorUnidad, PrecioUnitario, UnidadesEnStock, UnidadesEnPedidos, NivelNuevoPedido, Discontinuado) VALUES 
+INSERT INTO Productos (IDProducto, NombreProducto, IDProveedor, IDCategoria, CantidadPorUnidad, PrecioUnitario, UnidadesEnStock, UnidadesEnPedidos, NivelNuevoPedido, Discontinuado) VALUES 
 (1, 'Chai', 1, 1, '10 cajas x 20 bolsas', 18.0000, 39, 0, 10, 0),
 (2, 'Chang', 1, 1, '24 - 12 oz botellas', 19.0000, 17, 40, 25, 0),
 (3, 'Aniseed Syrup', 1, 2, '12 - 550 ml botellas', 10.0000, 13, 70, 25, 0),
@@ -301,7 +303,7 @@ INSERT Productos (IDProducto, NombreProducto, IDProveedor, IDCategoria, Cantidad
 (76, 'Lakkalikööri', 23, 1, '500 ml', 18.0000, 57, 0, 20, 0),
 (77, 'Original Frankfurter grüne Soße', 12, 2, '12 cajas', 13.0000, 32, 0, 15, 0);
 
-INSERT Clientes (IDCliente, NombreEmpresa, NombreContacto, PuestoContacto, Direccion, Ciudad, Region, CodigoPostal, Pais, Telefono, Fax) VALUES 
+INSERT INTO Clientes (IDCliente, NombreEmpresa, NombreContacto, PuestoContacto, Direccion, Ciudad, Region, CodigoPostal, Pais, Telefono, Fax) VALUES 
 ('ALFKI', 'Alfreds Futterkiste', 'Maria Anders', 'Representante de Ventas', 'Obere Str. 57', 'Berlin', NULL, '12209', 'Alemania', '030-0074321', '030-0076545'),
 ('ANATR', 'Ana Trujillo Emparedados y helados', 'Ana Trujillo', 'Dueño', 'Avda. de la Constitución 2222', 'México D.F.', NULL, '05021', 'Mexico', '(5) 555-4729', '(5) 555-3745'),
 ('ANTON', 'Antonio Moreno Taquería', 'Antonio Moreno', 'Dueño', 'Mataderos  2312', 'México D.F.', NULL, '05023', 'Mexico', '(5) 555-3932', NULL),
@@ -394,12 +396,12 @@ INSERT Clientes (IDCliente, NombreEmpresa, NombreContacto, PuestoContacto, Direc
 ('WILMK', 'Wilman Kala', 'Matti Karttunen', 'Dueño/Asistente de Marketing', 'Keskuskatu 45', 'Helsinki', NULL, '21240', 'Finlandia', '90-224 8858', '90-224 8858'),
 ('WOLZA', 'Wolski  Zajazd', 'Zbyszek Piestrzeniewicz', 'Dueño', 'ul. Filtrowa 68', 'Warszawa', NULL, '01-012', 'Polonia', '(26) 642-7012', '(26) 642-7012');
 
-INSERT Transportistas (IDTransportista, NombreEmpresa, Telefono) VALUES 
+INSERT INTO Transportistas (IDTransportista, NombreEmpresa, Telefono) VALUES 
 (1, 'Speedy Express', '(503) 555-9831'),
 (2, 'United Package', '(503) 555-3199'),
 (3, 'Federal Shipping', '(503) 555-9931');
 
-INSERT Pedidos (IDPedido, IDCliente, IDEmpleado, FechaPedido, FechaRequerida, FechaEnvio, EnvioPor, Flete, NombreEnvio, DireccionEnvio, CiudadEnvio, RegionEnvio, CodigoPostalEnvio, PaisEnvio) VALUES 
+INSERT INTO Pedidos (IDPedido, IDCliente, IDEmpleado, FechaPedido, FechaRequerida, FechaEnvio, EnvioPor, Flete, NombreEnvio, DireccionEnvio, CiudadEnvio, RegionEnvio, CodigoPostalEnvio, PaisEnvio) VALUES 
 (10248, 'VINET', 5, '2019-07-04 16:58:00.000', '20190801', '20190716', 3, 32.3800, 'Vins et alcools Chevalier', '59 rue de l''Abbaye', 'Reims', NULL, '51100', 'Francia'),
 (10249, 'TOMSP', 6, '2019-07-05 18:17:00.000', '20190816', '20190710', 1, 11.6100, 'Toms Spezialitäten', 'Luisenstr. 48', 'Münster', NULL, '44087', 'Alemania'),
 (10250, 'HANAR', 4, '2019-07-08 14:38:00.000', '20190805', '20190712', 2, 65.8300, 'Hanari Carnes', 'Rua do Paço, 67', 'Rio de Janeiro', 'RJ', '05454-876', 'Brasil'),
@@ -1231,7 +1233,7 @@ INSERT Pedidos (IDPedido, IDCliente, IDEmpleado, FechaPedido, FechaRequerida, Fe
 (11076, 'BONAP', 4, '2021-05-06 17:40:00.000', '20210603', NULL, 2, 38.2800, 'Bon app''', '12, rue des Bouchers', 'Marseille', NULL, '13008', 'Francia'),
 (11077, 'RATTC', 1, '2021-05-06 18:40:00.000', '20210603', NULL, 2, 8.5300, 'Rattlesnake Canyon Grocery', '2817 Milton Dr.', 'Albuquerque', 'NM', '87110', 'EE.UU.');
 
-INSERT `Detalles Pedido` (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
+INSERT INTO `Detalles Pedido` (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descuento) VALUES 
 (10248, 11, 14.0000, 12, 0),
 (10248, 42, 9.8000, 10, 0),
 (10248, 72, 34.8000, 5, 0),
@@ -3388,13 +3390,13 @@ INSERT `Detalles Pedido` (IDPedido, IDProducto, PrecioUnitario, Cantidad, Descue
 (11077, 75, 7.7500, 4, 0),
 (11077, 77, 13.0000, 2, 0);
 
-INSERT Region (IDRegion, RegionDescripcion) VALUES 
+INSERT INTO Region (IDRegion, RegionDescripcion) VALUES 
 (1, 'Oriental                                          '),
 (2, 'Occidental                                        '),
 (3, 'Norteña                                           '),
 (4, 'Sureña                                            ');
 
-INSERT Territorios (IDTerritorio, DescripcionTerritorio, IDRegion) VALUES 
+INSERT INTO Territorios (IDTerritorio, DescripcionTerritorio, IDRegion) VALUES 
 ('01581', 'Westboro                                          ', 1),
 ('01730', 'Bedford                                           ', 1),
 ('01833', 'Georgetow                                         ', 1),
@@ -3449,7 +3451,7 @@ INSERT Territorios (IDTerritorio, DescripcionTerritorio, IDRegion) VALUES
 ('98052', 'Redmond                                           ', 2),
 ('98104', 'Seattle                                           ', 2);
 
-INSERT EmpleadoTerritorios (IDEmpleado, IDTerritorio) VALUES 
+INSERT INTO EmpleadoTerritorios (IDEmpleado, IDTerritorio) VALUES 
 (1, '06897'),
 (1, '19713'),
 (2, '01581'),
@@ -3506,8 +3508,8 @@ IN pIDPedido int
 SELECT NombreProducto,
     ROUND(Od.PrecioUnitario, 2) AS PrecioUnitario,
     Cantidad,
-    CONVERT((Descuento * 100),unsigned) AS Descuento,
-    ROUND(CONVERT(Cantidad * (1 - Descuento) * Od.PrecioUnitario,decimal(19,4)), 2) AS PrecioAmpliado
+    CAST(Descuento * 100 AS unsigned) AS Descuento,
+    ROUND(CAST(Cantidad * (1 - Descuento) * Od.PrecioUnitario AS decimal(19,4)), 2) AS PrecioAmpliado
 FROM Productos P, `Detalles Pedido` Od
 WHERE Od.IDProducto = P.IDProducto and Od.IDPedido = pIDPedido;
 
@@ -3532,6 +3534,7 @@ FROM Pedidos
 WHERE IDCliente = pIDCliente
 ORDER BY IDPedido;
 
+
 CREATE PROCEDURE `Diez productos mas caros` ()
 SELECT Productos.NombreProducto AS TenMostExpensiveProductos, Productos.PrecioUnitario
 FROM Productos
@@ -3547,6 +3550,7 @@ FROM Empleados INNER JOIN
 	(Pedidos INNER JOIN `Subtotales de pedidos` ON Pedidos.IDPedido = `Subtotales de pedidos`.IDPedido) 
 	ON Empleados.IDEmpleado = Pedidos.IDEmpleado
 WHERE Pedidos.FechaEnvio Between pFecha_inicio And pFecha_fin;
+
 
 CREATE PROCEDURE `Ventas por Anio` (
 IN pFecha_inicio DateTime, 
@@ -3567,7 +3571,7 @@ BEGIN
 	END IF;
 
 	SELECT NombreProducto,
-		ROUND(SUM(CONVERT(OD.Cantidad * (1-OD.Descuento) * OD.PrecioUnitario,decimal(14,2))), 0) AS CompraTotal
+		ROUND(SUM(CAST(OD.Cantidad * (1-OD.Descuento) * OD.PrecioUnitario AS decimal(14,2))), 0) AS CompraTotal
 	FROM `Detalles Pedido` OD, Pedidos O, Productos P, Categorias C
 	WHERE OD.IDPedido = O.IDPedido 
 		AND OD.IDProducto = P.IDProducto 
@@ -3612,6 +3616,7 @@ SELECT Categorias.NombreCategoria, Productos.NombreProducto, Productos.CantidadP
 FROM Categorias INNER JOIN Productos ON Categorias.IDCategoria = Productos.IDCategoria
 WHERE Productos.Discontinuado <> 1;
 
+
 CREATE VIEW `Pedidos Trimestrales` AS
 SELECT DISTINCT Clientes.IDCliente, Clientes.NombreEmpresa, Clientes.Ciudad, Clientes.Pais
 FROM Clientes RIGHT JOIN Pedidos ON Clientes.IDCliente = Pedidos.IDCliente
@@ -3625,7 +3630,7 @@ SELECT Pedidos.NombreEnvio, Pedidos.DireccionEnvio, Pedidos.CiudadEnvio, Pedidos
 	Pedidos.IDPedido, Pedidos.FechaPedido, Pedidos.FechaRequerida, Pedidos.FechaEnvio, Transportistas.NombreEmpresa As NombreTransportista, 
 	`Detalles Pedido`.IDProducto, Productos.NombreProducto, `Detalles Pedido`.PrecioUnitario, `Detalles Pedido`.Cantidad, 
 	`Detalles Pedido`.Descuento, 
-	(CONVERT((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100),decimal(19,4))*100) AS PrecioAmpliado, Pedidos.Flete
+	(CAST((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS PrecioAmpliado, Pedidos.Flete
 FROM 	Transportistas INNER JOIN 
 		(Productos INNER JOIN 
 			(
@@ -3636,20 +3641,23 @@ FROM 	Transportistas INNER JOIN
 		ON Productos.IDProducto = `Detalles Pedido`.IDProducto) 
 	ON Transportistas.IDTransportista = Pedidos.EnvioPor;
 
+
 CREATE VIEW `Detalles Pedido ampliados` AS
 SELECT `Detalles Pedido`.IDPedido, `Detalles Pedido`.IDProducto, Productos.NombreProducto, 
 	`Detalles Pedido`.PrecioUnitario, `Detalles Pedido`.Cantidad, `Detalles Pedido`.Descuento, 
-	(CONVERT((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100),decimal(19,4))*100) AS PrecioAmpliado
+	(CAST((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS PrecioAmpliado
 FROM Productos INNER JOIN `Detalles Pedido` ON Productos.IDProducto = `Detalles Pedido`.IDProducto;
 
+
 CREATE VIEW `Subtotales de pedidos` AS
-SELECT `Detalles Pedido`.IDPedido, Sum(CONVERT((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100),decimal(19,4))*100) AS Subtotal
+SELECT `Detalles Pedido`.IDPedido, Sum(CAST((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS Subtotal
 FROM `Detalles Pedido`
 GROUP BY `Detalles Pedido`.IDPedido;
 
+
 CREATE VIEW `Ventas de productos para 2020` AS
 SELECT Categorias.NombreCategoria, Productos.NombreProducto, 
-Sum(CONVERT((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100),decimal(19,4))*100) AS VentasProducto
+Sum(CAST((`Detalles Pedido`.PrecioUnitario*Cantidad*(1-Descuento)/100) AS decimal(19,4))*100) AS VentasProducto
 FROM (Categorias INNER JOIN Productos ON Categorias.IDCategoria = Productos.IDCategoria) 
 	INNER JOIN (Pedidos 
 		INNER JOIN `Detalles Pedido` ON Pedidos.IDPedido = `Detalles Pedido`.IDPedido) 
@@ -3657,10 +3665,12 @@ FROM (Categorias INNER JOIN Productos ON Categorias.IDCategoria = Productos.IDCa
 WHERE (((Pedidos.FechaEnvio) Between '20200101' And '20201231'))
 GROUP BY Categorias.NombreCategoria, Productos.NombreProducto;
 
+
 CREATE VIEW `Ventas por Categoria en 2020` AS
 SELECT `Ventas de productos para 2020`.NombreCategoria, Sum(`Ventas de productos para 2020`.VentasProducto) AS VentasCategoria
 FROM `Ventas de productos para 2020`
 GROUP BY `Ventas de productos para 2020`.NombreCategoria;
+
 
 CREATE VIEW `Ventas por Categoria` AS
 SELECT Categorias.IDCategoria, Categorias.NombreCategoria, Productos.NombreProducto, 
@@ -3673,6 +3683,7 @@ FROM 	Categorias INNER JOIN
 WHERE Pedidos.FechaPedido BETWEEN '20200101' And '20201231'
 GROUP BY Categorias.IDCategoria, Categorias.NombreCategoria, Productos.NombreProducto;
 
+
 CREATE VIEW `Totales de ventas por cantidad` AS
 SELECT `Subtotales de pedidos`.Subtotal AS MontoVenta, Pedidos.IDPedido, Clientes.NombreEmpresa, Pedidos.FechaEnvio
 FROM 	Clientes INNER JOIN 
@@ -3680,15 +3691,18 @@ FROM 	Clientes INNER JOIN
 	ON Clientes.IDCliente = Pedidos.IDCliente
 WHERE (`Subtotales de pedidos`.Subtotal >2500) AND (Pedidos.FechaEnvio BETWEEN '20200101' And '20201231');
 
+
 CREATE VIEW `Resumen de Ventas por Trimestre` AS
 SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, `Subtotales de pedidos`.Subtotal
 FROM Pedidos INNER JOIN `Subtotales de pedidos` ON Pedidos.IDPedido = `Subtotales de pedidos`.IDPedido
 WHERE Pedidos.FechaEnvio IS NOT NULL;
 
+
 CREATE VIEW `Resumen de Ventas por Anio` AS
 SELECT Pedidos.FechaEnvio, Pedidos.IDPedido, `Subtotales de pedidos`.Subtotal
 FROM Pedidos INNER JOIN `Subtotales de pedidos` ON Pedidos.IDPedido = `Subtotales de pedidos`.IDPedido
 WHERE Pedidos.FechaEnvio IS NOT NULL;
+
 
 CREATE VIEW ClientesOrdenes AS
 SELECT
@@ -3704,7 +3718,7 @@ CREATE VIEW ValoresPedido AS
 SELECT O.IDPedido, O.IDCliente, O.IDEmpleado, O.EnvioPor, O.FechaPedido, O.FechaRequerida, O.FechaEnvio,
   SUM(OD.Cantidad) AS cantidad,
   CAST(SUM(OD.Cantidad * OD.PrecioUnitario * (1 - OD.Descuento))
-       AS DECIMAL(12, 2)) AS val
+       AS decimal(12, 2)) AS val
 FROM Pedidos AS O
   JOIN `Detalles Pedido` AS OD
     ON O.IDPedido = OD.IDPedido
