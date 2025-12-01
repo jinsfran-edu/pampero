@@ -6,7 +6,7 @@ CREATE DATABASE Pampero
 	LC_CTYPE = 'es_ES.utf8'
     TEMPLATE = template0;
 	
-\c Pampero
+\c pampero
 -- Crear tabla Empleados
 CREATE TABLE Empleados(
 	IDEmpleado SERIAL NOT NULL,
