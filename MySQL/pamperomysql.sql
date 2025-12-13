@@ -175,7 +175,7 @@ CREATE TABLE EmpleadoTerritorios(
 DELIMITER $$
 
 CREATE TRIGGER tr_CK_FechaNacimiento
-BEFORE INSERT ON empleados
+BEFORE INSERT ON Empleados
 FOR EACH ROW
 BEGIN
     IF NEW.FechaNacimiento > CURRENT_DATE() THEN
