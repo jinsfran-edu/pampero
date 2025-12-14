@@ -177,7 +177,7 @@ BEGIN
     ;
 
     DROP TABLE IF EXISTS resumen;
-    CREATE TEMP TABLE resumen (Resumen VARCHAR(50), Resultado VARCHAR(100));
+    CREATE TEMP TABLE resumen (Resumen VARCHAR(50), Resultado VARCHAR(200));
     INSERT INTO resumen VALUES
         ('Server Name', inet_server_addr()),
         ('Version', version()),
