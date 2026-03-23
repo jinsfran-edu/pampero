@@ -7,6 +7,10 @@
 
 Base de datos de ejemplo Pampero, adaptación en español del clásico esquema Northwind.
 
+## Diagrama de tablas
+
+![Diagrama de tablas Pampero](docs/pampero.png)
+
 Incluye scripts para:
 - crear la base,
 - generar tablas, claves e índices,
